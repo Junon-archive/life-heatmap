@@ -1,0 +1,13 @@
+# 원본 사진 등 개인 자료 — 커밋 금지 (specs/04 §2)
+temp/
+
+# build/deps
+web_app/node_modules/
+web_app/dist/
+web_app/dev-dist/
+web_app/.wrangler/
+web_app/tmp/
+
+# misc
+.DS_Store
+*.log
