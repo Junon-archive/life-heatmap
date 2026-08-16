@@ -51,12 +51,12 @@ export function cellVisual(hm: Heatmap, date: string, today: string): CellVisual
     const days = streakOn(hm, date)
     const level = levelFor(days, sc.levels)
     if (level > 0) {
-      if (sc.mode === 'auto' && !v.fill) {
-        // 자동 채색: 엔트리 없어도 baseColor 단계 채움. 수동 표기가 있으면 수동 우선
-        v.fill = { style: 'solid', color: sc.baseColor, alpha: LEVEL_ALPHA[level] }
-      } else if (sc.mode === 'manual' && v.fill) {
-        // 수동 채색: 채운 날만, 강도는 단계를 따름
+      if (v.fill) {
+        // 수동 채움도 단계 강도를 따른다 (D-11)
         v.fill = { ...v.fill, alpha: LEVEL_ALPHA[level] }
+      } else if (sc.mode === 'auto') {
+        // 자동 채색: 엔트리 없어도 baseStyle·baseColor 단계 채움
+        v.fill = { style: sc.baseStyle ?? 'solid', color: sc.baseColor, alpha: LEVEL_ALPHA[level] }
       }
     }
     if (isMilestone(days, sc.milestones) && (sc.mode === 'auto' || v.fill)) {

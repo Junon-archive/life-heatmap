@@ -44,6 +44,7 @@
   "streak": {
     "mode": "auto",              // "auto"(자동 채색) | "manual"(수동 채색)
     "baseColor": "violet",       // 그라데이션 기본 색 (팔레트 키)
+    "baseStyle": "solid",        // 자동 채색의 채움 양식: "hatch" | "solid" (D-11)
     "milestones": [7, 30, 50, 100, 365],  // 사용자 지정. 기본 제안값
     "levels": [1, 3, 7, 14, 30]  // 그라데이션 단계 경계(일). 5단계 강도로 매핑
   },

@@ -33,6 +33,7 @@ export interface LegendItem {
 export interface StreakConfig {
   mode: 'auto' | 'manual'
   baseColor: PaletteKey
+  baseStyle: FillStyle // 자동 채색의 채움 양식 (D-11)
   milestones: number[]
   levels: number[]
 }
@@ -94,6 +95,7 @@ export const PALETTE_KEYS = Object.keys(PALETTE) as PaletteKey[]
 export const DEFAULT_STREAK: StreakConfig = {
   mode: 'auto',
   baseColor: 'violet',
+  baseStyle: 'solid',
   milestones: [7, 30, 50, 100, 365],
   levels: [1, 3, 7, 14, 30],
 }

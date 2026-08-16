@@ -33,6 +33,7 @@ export function migrate(d: unknown): AppData {
     hm.entries ??= {}
     hm.config ??= {}
     hm.createdAt ??= todayStr()
+    if (hm.config.streak) hm.config.streak.baseStyle ??= 'solid' // D-11 이전 데이터 보강
   }
   return obj
 }

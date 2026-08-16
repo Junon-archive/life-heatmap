@@ -87,6 +87,12 @@ function StreakSettings({ hm }: { hm: Heatmap }) {
           <button class={sc.mode === 'manual' ? 'on' : ''} onClick={() => patchConfig(hm, (c) => { c.streak = { ...sc, mode: 'manual' } })}>수동</button>
         </span>
       </Row>
+      <Row label="채움 양식">
+        <span class="seg">
+          <button class={sc.baseStyle !== 'hatch' ? 'on' : ''} onClick={() => patchConfig(hm, (c) => { c.streak = { ...sc, baseStyle: 'solid' } })}>단색</button>
+          <button class={sc.baseStyle === 'hatch' ? 'on' : ''} onClick={() => patchConfig(hm, (c) => { c.streak = { ...sc, baseStyle: 'hatch' } })}>빗금</button>
+        </span>
+      </Row>
       <Row label="기본 색">
         <Swatches current={sc.baseColor} onPick={(k) => patchConfig(hm, (c) => { c.streak = { ...sc, baseColor: k } })} />
       </Row>
