@@ -5,6 +5,7 @@ import type { Heatmap, HeatmapType, LegendItem, CondRule, PaletteKey, FillStyle 
 import { PALETTE, PALETTE_KEYS, DEFAULT_STREAK, DEFAULT_CONDITIONAL } from '../lib/types'
 import { getData, updateHeatmapMeta, deleteHeatmap, setWeekLabel, update } from '../lib/store'
 import { exportJSON, importJSON } from '../lib/backup'
+import { SyncSection } from './SyncUI'
 import { useAppData } from '../lib/useData'
 import { fillBackground, MarkGlyph } from './Cell'
 
@@ -321,6 +322,7 @@ export function SettingsView({ onClose, extraSections }: { onClose: () => void; 
                 </span>
               </div>
             </section>
+            <SyncSection />
             <section>
               <h3>백업</h3>
               <div class="ed-row">

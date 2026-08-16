@@ -33,6 +33,13 @@ input { font: inherit; }
   color: var(--text-dim); font-size: 17px;
 }
 .icon-btn:active { background: var(--line-soft); }
+.sync-ind {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; color: var(--text-dim);
+  padding: 4px 8px; border-radius: 999px;
+}
+.sync-ind:active { background: var(--line-soft); }
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; }
 
 /* ---------- 보드: 모바일 스와이프 / 데스크톱 그리드 ---------- */
 .board {

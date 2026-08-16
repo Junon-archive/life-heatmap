@@ -9,6 +9,7 @@ import { SettingsView } from './components/SettingsView'
 import { StatsView } from './components/StatsView'
 import { LegendPopover } from './components/LegendPopover'
 import { YearJump } from './components/YearJump'
+import { SyncIndicator } from './components/SyncUI'
 
 interface EditorTarget {
   hmId: string
@@ -56,6 +57,7 @@ export function App() {
       <header class="header">
         <h1>Life Heatmap</h1>
         <span class="spacer" />
+        <SyncIndicator />
         <button class="icon-btn" title="추가" onClick={() => setCreateOpen(true)}>＋</button>
         <button class="icon-btn" title="설정" onClick={() => setSettingsOpen(true)}>⚙</button>
       </header>
