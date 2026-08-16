@@ -5,6 +5,7 @@ import { todayStr } from './lib/dates'
 import { HeatmapCard } from './components/HeatmapCard'
 import { CellEditor } from './components/CellEditor'
 import { CreateFlow } from './components/CreateFlow'
+import { SettingsView } from './components/SettingsView'
 
 interface EditorTarget {
   hmId: string
@@ -25,6 +26,7 @@ export function App() {
 
   const [editor, setEditor] = useState<EditorTarget | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const [page, setPage] = useState(0)
   const boardRef = useRef<HTMLDivElement>(null)
 
@@ -48,7 +50,7 @@ export function App() {
         <h1>Life Heatmap</h1>
         <span class="spacer" />
         <button class="icon-btn" title="추가" onClick={() => setCreateOpen(true)}>＋</button>
-        <button class="icon-btn" title="설정">⚙</button>
+        <button class="icon-btn" title="설정" onClick={() => setSettingsOpen(true)}>⚙</button>
       </header>
 
       {heatmaps.length === 0 ? (
@@ -96,6 +98,7 @@ export function App() {
         <CellEditor hm={editorHm} date={editor.date} anchor={editor.anchor} onClose={() => setEditor(null)} />
       )}
       {createOpen && <CreateFlow onClose={() => setCreateOpen(false)} onCreated={() => {}} />}
+      {settingsOpen && <SettingsView onClose={() => setSettingsOpen(false)} />}
     </>
   )
 }
