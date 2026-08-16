@@ -1,7 +1,7 @@
 # Roadmap — Life Heatmap
 
 ## 현재 상태
-**v1 구현 완료 · 검증 통과.** 명세는 `specs/00~04` 확정본 기준. 남은 것은 사용자 직접 수행분인 Cloudflare 배포(아래 체크리스트)뿐.
+**v1 배포 완료 · 운영 중.** GitHub `Junon-archive/life-heatmap`(private) → Cloudflare Pages 자동 배포, KV(`LH_KV`) 동기화 확인 완료(2026-08-16). 명세는 `specs/00~04` 확정본 기준.
 
 ## v1 체크리스트
 - [x] 1단계: 스캐폴드(Vite+Preact+TS) · 데이터 모델/store/localStorage · dates/streak/merge/stats 유틸 · vitest 21개 통과
@@ -11,11 +11,11 @@
 - [x] 5단계: 동기화 (Pages Functions + KV)
 - [x] 6단계: PWA(아이콘·오프라인) + E2E 검증(헤드리스 Chrome)
 
-## 배포 체크리스트 (사용자 직접 수행 — specs/04 §4)
-1. GitHub **private** 저장소 생성 후 push
-2. Cloudflare Pages 연결: Root `web_app` / Build `npm run build` / Output `dist`
-3. KV 네임스페이스 생성 → Pages 설정에서 바인딩 변수명 `LH_KV` 연결(Production/Preview)
-4. 배포 후 설정 → 동기화 → 새 코드 생성, 다른 기기에 코드 입력
+## 배포 (완료 — 2026-08-16)
+1. ✅ GitHub **private** 저장소 push (`Junon-archive/life-heatmap`)
+2. ✅ Cloudflare Pages 연결: Root `web_app` / Build `npm run build` / Output `dist`
+3. ✅ Workers KV 네임스페이스 생성 → Pages 바인딩 `LH_KV` 연결 → 재배포
+4. ✅ 동기화 코드 생성, 초록 점 확인 (다른 기기는 설정 → 동기화에 코드 입력)
 
 ## 변경 로그
 - **2026-08-16** 명세서 v1 확정(`specs/00~04`). specs/02 §1에 `createdAt` 필드 보완(§4가 참조하는 streak 시작일 계산용).
