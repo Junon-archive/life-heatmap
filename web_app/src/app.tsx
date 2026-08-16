@@ -6,6 +6,9 @@ import { HeatmapCard } from './components/HeatmapCard'
 import { CellEditor } from './components/CellEditor'
 import { CreateFlow } from './components/CreateFlow'
 import { SettingsView } from './components/SettingsView'
+import { StatsView } from './components/StatsView'
+import { LegendPopover } from './components/LegendPopover'
+import { YearJump } from './components/YearJump'
 
 interface EditorTarget {
   hmId: string
@@ -27,6 +30,10 @@ export function App() {
   const [editor, setEditor] = useState<EditorTarget | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [statsFor, setStatsFor] = useState<string | null>(null)
+  const [legendFor, setLegendFor] = useState<{ hmId: string; anchor: DOMRect } | null>(null)
+  const [jumpFor, setJumpFor] = useState<{ hmId: string; anchor: DOMRect } | null>(null)
+  const [scrollTargets, setScrollTargets] = useState<Record<string, { date: string; token: number }>>({})
   const [page, setPage] = useState(0)
   const boardRef = useRef<HTMLDivElement>(null)
 
@@ -74,9 +81,10 @@ export function App() {
                 labelMode={data.settings.weekLabel}
                 onToggleLabel={toggleLabel}
                 onCellClick={onCellClick}
-                onOpenStats={() => {}}
-                onOpenLegend={() => {}}
-                onYearJump={() => {}}
+                onOpenStats={setStatsFor}
+                onOpenLegend={(hmId, el) => setLegendFor({ hmId, anchor: el.getBoundingClientRect() })}
+                onYearJump={(hmId, el) => setJumpFor({ hmId, anchor: el.getBoundingClientRect() })}
+                scrollTarget={scrollTargets[hm.id] ?? null}
               />
             ))}
           </div>
@@ -99,6 +107,23 @@ export function App() {
       )}
       {createOpen && <CreateFlow onClose={() => setCreateOpen(false)} onCreated={() => {}} />}
       {settingsOpen && <SettingsView onClose={() => setSettingsOpen(false)} />}
+      {statsFor && heatmaps.find((h) => h.id === statsFor) && (
+        <StatsView hm={heatmaps.find((h) => h.id === statsFor)!} today={today} onClose={() => setStatsFor(null)} />
+      )}
+      {legendFor && heatmaps.find((h) => h.id === legendFor.hmId) && (
+        <LegendPopover hm={heatmaps.find((h) => h.id === legendFor.hmId)!} anchor={legendFor.anchor} onClose={() => setLegendFor(null)} />
+      )}
+      {jumpFor && heatmaps.find((h) => h.id === jumpFor.hmId) && (
+        <YearJump
+          hm={heatmaps.find((h) => h.id === jumpFor.hmId)!}
+          anchor={jumpFor.anchor}
+          today={today}
+          onJump={(date) =>
+            setScrollTargets((s) => ({ ...s, [jumpFor.hmId]: { date, token: (s[jumpFor.hmId]?.token ?? 0) + 1 } }))
+          }
+          onClose={() => setJumpFor(null)}
+        />
+      )}
     </>
   )
 }

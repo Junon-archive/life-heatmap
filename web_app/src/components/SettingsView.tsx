@@ -4,6 +4,7 @@ import type { ComponentChildren } from 'preact'
 import type { Heatmap, HeatmapType, LegendItem, CondRule, PaletteKey, FillStyle } from '../lib/types'
 import { PALETTE, PALETTE_KEYS, DEFAULT_STREAK, DEFAULT_CONDITIONAL } from '../lib/types'
 import { getData, updateHeatmapMeta, deleteHeatmap, setWeekLabel, update } from '../lib/store'
+import { exportJSON, importJSON } from '../lib/backup'
 import { useAppData } from '../lib/useData'
 import { fillBackground, MarkGlyph } from './Cell'
 
@@ -319,6 +320,22 @@ export function SettingsView({ onClose, extraSections }: { onClose: () => void; 
                   <button class={getData().settings.weekLabel === 'number' ? 'on' : ''} onClick={() => setWeekLabel('number')}>주 번호</button>
                 </span>
               </div>
+            </section>
+            <section>
+              <h3>백업</h3>
+              <div class="ed-row">
+                <button class="btn ghost" onClick={exportJSON}>JSON 내보내기</button>
+                <button class="btn ghost" onClick={() => importJSON('merge')}>가져오기 (병합)</button>
+                <button
+                  class="btn danger"
+                  onClick={() => {
+                    if (confirm('현재 기기의 모든 기록을 파일 내용으로 교체할까요?\n기존 기록은 사라져요.')) importJSON('replace')
+                  }}
+                >
+                  가져오기 (전체 교체)
+                </button>
+              </div>
+              <p class="hint">병합은 날짜별로 더 최근에 수정된 기록을 남겨요.</p>
             </section>
             {extraSections}
           </>
