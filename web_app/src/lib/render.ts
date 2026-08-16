@@ -37,9 +37,9 @@ export function cellVisual(hm: Heatmap, date: string, today: string): CellVisual
 
   const isFail = !!e?.fail
 
-  // 실패 체크는 빈칸처럼 렌더 (specs R-11, D-4)
-  if (!isFail && e) {
-    if (e.fill) v.fill = { style: e.fill.style, color: e.fill.color, alpha: e.fill.style === 'hatch' ? HATCH_ALPHA : SOLID_ALPHA }
+  // 실패 체크는 채우기만 배타 — 마크·테두리는 함께 표기 가능 (specs R-11, D-10)
+  if (e) {
+    if (!isFail && e.fill) v.fill = { style: e.fill.style, color: e.fill.color, alpha: e.fill.style === 'hatch' ? HATCH_ALPHA : SOLID_ALPHA }
     v.mark = e.mark ?? null
     v.markColor = e.markColor ?? null
     v.border = !!e.border

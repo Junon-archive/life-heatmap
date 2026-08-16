@@ -99,8 +99,9 @@ export function CellEditor({ hm, date, anchor, onClose }: Props) {
     else patch({ mark: { kind: 'number', value: Math.floor(numValue / 10) } })
   }
 
+  // 실패 체크는 채우기와만 배타 — 마크·테두리는 유지 (specs D-10)
   const setFail = (on: boolean) => {
-    if (on) patch({ fail: true, fill: null, mark: null, markColor: null, border: false })
+    if (on) patch({ fail: true, fill: null })
     else patch({ fail: false })
   }
 
@@ -136,7 +137,7 @@ export function CellEditor({ hm, date, anchor, onClose }: Props) {
           </div>
         )}
 
-        <div class={`ed-row ${isFail || markSuppressed ? 'disabled' : ''}`}>
+        <div class={`ed-row ${markSuppressed ? 'disabled' : ''}`}>
           <span class="ed-label">마크</span>
           <span class="seg">
             <button class={markKind === null ? 'on' : ''} onClick={() => patch({ mark: null })}>없음</button>
@@ -146,7 +147,7 @@ export function CellEditor({ hm, date, anchor, onClose }: Props) {
             <button class={markKind === 'star' ? 'on' : ''} onClick={() => setSymbol('star')}>★</button>
           </span>
         </div>
-        {markKind === 'number' && !isFail && !markSuppressed && (
+        {markKind === 'number' && !markSuppressed && (
           <div class="ed-row">
             <span class="ed-label num-preview">{numValue}</span>
             <span class="keypad">
@@ -157,14 +158,14 @@ export function CellEditor({ hm, date, anchor, onClose }: Props) {
             </span>
           </div>
         )}
-        {markKind != null && !isFail && !markSuppressed && (
+        {markKind != null && !markSuppressed && (
           <div class="ed-row">
             <span class="ed-label">마크 색</span>
             <Swatches current={e?.markColor} onPick={(c) => patch({ markColor: c })} withDefault />
           </div>
         )}
 
-        <div class={`ed-row ${isFail ? 'disabled' : ''}`}>
+        <div class="ed-row">
           <span class="ed-label">테두리</span>
           <button class={`toggle ${e?.border ? 'on' : ''}`} onClick={() => patch({ border: !e?.border })}>
             테두리 강조
