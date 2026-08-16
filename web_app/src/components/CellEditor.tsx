@@ -1,5 +1,5 @@
 // 칸 편집기 — 바텀시트(모바일)/팝오버(데스크톱), 탭 즉시 저장 (specs/03 §5)
-import { useMemo } from 'preact/hooks'
+import { useEffect, useMemo } from 'preact/hooks'
 import type { Heatmap, PaletteKey, FillStyle, SymbolKind } from '../lib/types'
 import { PALETTE, PALETTE_KEYS, matchCondRule } from '../lib/types'
 import { patchEntry, clearEntry } from '../lib/store'
@@ -41,6 +41,17 @@ function Swatches({ current, onPick, withDefault }: { current: PaletteKey | null
 }
 
 export function CellEditor({ hm, date, anchor, onClose }: Props) {
+  // backdrop 없이 외부 클릭으로 닫기 — 칸 클릭은 통과시켜 편집기 연 채 대상 전환 (specs/03 §5)
+  useEffect(() => {
+    const h = (ev: MouseEvent) => {
+      const t = ev.target as HTMLElement | null
+      if (t?.closest('.editor') || t?.closest('.cell')) return
+      onClose()
+    }
+    document.addEventListener('click', h)
+    return () => document.removeEventListener('click', h)
+  }, [onClose])
+
   const e = hm.entries[date]
   const isFail = !!e?.fail
   const d = parseDate(date)
@@ -103,8 +114,7 @@ export function CellEditor({ hm, date, anchor, onClose }: Props) {
 
   return (
     <>
-      <div class="backdrop" onClick={onClose} />
-      <div class="editor" style={popStyle} onClick={(ev) => ev.stopPropagation()}>
+      <div class="editor" style={popStyle}>
         <div class="ed-date">
           {d.getMonth() + 1}월 {d.getDate()}일 ({DAY_NAMES[d.getDay()]})
           {streakDays != null && streakDays > 0 && <span class="sub">{streakDays}일차</span>}
@@ -130,7 +140,7 @@ export function CellEditor({ hm, date, anchor, onClose }: Props) {
           <span class="ed-label">마크</span>
           <span class="seg">
             <button class={markKind === null ? 'on' : ''} onClick={() => patch({ mark: null })}>없음</button>
-            <button class={markKind === 'number' ? 'on' : ''} onClick={() => { if (markKind !== 'number') patch({ mark: { kind: 'number', value: 1 } }) }}>123</button>
+            <button class={markKind === 'number' ? 'on' : ''} onClick={() => { if (markKind !== 'number') patch({ mark: { kind: 'number', value: 0 } }) }}>123</button>
             <button class={markKind === 'circle' ? 'on' : ''} onClick={() => setSymbol('circle')}>◯</button>
             <button class={markKind === 'x' ? 'on' : ''} onClick={() => setSymbol('x')}>✕</button>
             <button class={markKind === 'star' ? 'on' : ''} onClick={() => setSymbol('star')}>★</button>
