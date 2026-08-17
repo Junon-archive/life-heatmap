@@ -68,7 +68,8 @@ function YearGrid({ hm, range, today, onJump }: { hm: Heatmap; range: Range; tod
   // 첫 라벨이 다음 라벨과 너무 붙으면(부분 주) 생략
   if (monthLabels.length >= 2 && monthLabels[1].col - monthLabels[0].col < 3) monthLabels.shift()
 
-  const gridStyle = { gridTemplateColumns: `auto repeat(${weeks.length}, 1fr)` }
+  // minmax(0,1fr) 필수 — 1fr만 쓰면 월 라벨의 min-content가 열 폭을 강제해 좁은 화면에서 그리드가 붕괴 (D-14)
+  const gridStyle = { gridTemplateColumns: `auto repeat(${weeks.length}, minmax(0, 1fr))` }
 
   return (
     <div class="yv-block">
@@ -91,7 +92,7 @@ function YearGrid({ hm, range, today, onJump }: { hm: Heatmap; range: Range; tod
             }
             return (
               <span key={date} style={{ gridColumn: w + 2, gridRow: d + 2 }}>
-                <Cell date={date} visual={cellVisual(hm, date, today)} onClick={() => onJump(date)} />
+                <Cell date={date} visual={cellVisual(hm, date, today)} onClick={() => onJump(date)} compact />
               </span>
             )
           })

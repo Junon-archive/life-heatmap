@@ -48,9 +48,11 @@ interface Props {
   date: string
   visual: CellVisual
   onClick: (date: string, el: HTMLElement) => void
+  /** 연간 보기 등 초소형 칸: 숫자/수치 텍스트는 점으로 대체, 테두리·마일스톤 축소 (specs D-14) */
+  compact?: boolean
 }
 
-export function Cell({ date, visual: v, onClick }: Props) {
+export function Cell({ date, visual: v, onClick, compact }: Props) {
   const cls = [
     'cell',
     v.pastEmpty && 'past-empty',
@@ -69,13 +71,25 @@ export function Cell({ date, visual: v, onClick }: Props) {
       onClick={(e) => onClick(date, e.currentTarget as HTMLElement)}
     >
       {v.fill && <span class="layer" style={{ background: fillBackground(v.fill.style, v.fill.color, v.fill.alpha) }} />}
-      {v.mark && <MarkGlyph mark={v.mark} color={markColor} />}
-      {!v.mark && v.valueText != null && <span class="mark val" style={{ color: markColor }}>{v.valueText}</span>}
-      {v.border && <span class="border-hl" style={{ boxShadow: `inset 0 0 0 2px ${markColor}` }} />}
+      {v.mark && (compact && v.mark.kind === 'number' ? (
+        <span class="mark-dot" style={{ background: markColor }} />
+      ) : (
+        <MarkGlyph mark={v.mark} color={markColor} />
+      ))}
+      {!v.mark && v.valueText != null && (compact ? (
+        !v.fill && <span class="mark-dot" style={{ background: markColor }} />
+      ) : (
+        <span class="mark val" style={{ color: markColor }}>{v.valueText}</span>
+      ))}
+      {v.border && <span class="border-hl" style={{ boxShadow: `inset 0 0 0 ${compact ? 1 : 2}px ${markColor}` }} />}
       {v.milestone && v.milestoneColor && (
         <span
           class="milestone-fx"
-          style={{ boxShadow: `0 0 0 2px ${PALETTE[v.milestoneColor]}, 0 0 8px 1px ${rgba(v.milestoneColor, 0.55)}` }}
+          style={{
+            boxShadow: compact
+              ? `0 0 0 1px ${PALETTE[v.milestoneColor]}, 0 0 3px 0 ${rgba(v.milestoneColor, 0.55)}`
+              : `0 0 0 2px ${PALETTE[v.milestoneColor]}, 0 0 8px 1px ${rgba(v.milestoneColor, 0.55)}`,
+          }}
         />
       )}
     </button>

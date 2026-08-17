@@ -303,17 +303,22 @@ input { font: inherit; }
   gap: 2px;
   align-items: stretch;
 }
-.yv-month { font-size: 9px; color: var(--text-faint); white-space: nowrap; line-height: 1.2; }
+/* width:0 + overflow visible — 라벨 텍스트가 트랙 폭에 영향 주지 않고 칸 위로 흘러넘침 (D-14, Safari 안전장치) */
+.yv-month { font-size: 9px; color: var(--text-faint); white-space: nowrap; line-height: 1.2; width: 0; min-width: 0; overflow: visible; }
 .yv-day { font-size: 8px; color: var(--text-faint); align-self: center; padding-right: 3px; }
 .yv-summary { font-size: 12px; color: var(--text-dim); margin-top: 8px; }
 
-/* 축소 칸 오버라이드 — 렌더 규칙은 동일, 스케일만 조정 */
-.yv-grid .cell { display: block; width: 100%; height: auto; border-radius: 2px; }
+/* 축소 칸 오버라이드 — compact 렌더(숫자→점)와 병행, 스케일만 조정 (D-14) */
+.yv-grid .cell { display: block; width: 100%; height: auto; border-radius: 1px; min-width: 0; }
 .yv-grid .cell.past-empty::after { display: none; }
 .yv-grid .cell.today { outline: 1px solid var(--accent); outline-offset: 0; }
-.yv-grid .cell .mark.num { font-size: clamp(4px, 1.4vw, 9px); }
-.yv-grid .cell .mark.val { font-size: clamp(3px, 1.2vw, 8px); }
 .yv-grid .cell .milestone-fx { inset: 0; border-radius: 2px; }
+.mark-dot {
+  position: absolute; left: 50%; top: 50%;
+  width: 42%; height: 42%; max-width: 5px; max-height: 5px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%; pointer-events: none;
+}
 @media (max-width: 767px) { .yv-grid { gap: 1px; } }
 
 /* 빈 상태 */
