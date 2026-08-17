@@ -133,7 +133,7 @@ input { font: inherit; }
 .cell.past-empty::after {
   content: ''; position: absolute; top: 50%; left: 50%;
   width: 3px; height: 3px; margin: -1.5px 0 0 -1.5px;
-  border-radius: 50%; background: #d6d3d1;
+  border-radius: 50%; background: #cbd5e1;
 }
 .cell.future { opacity: 0.4; background: var(--line-soft); }
 .cell.today { outline: 2px solid var(--accent); outline-offset: 1px; z-index: 1; }
