@@ -10,6 +10,7 @@ import { StatsView } from './components/StatsView'
 import { LegendPopover } from './components/LegendPopover'
 import { YearJump } from './components/YearJump'
 import { SyncIndicator } from './components/SyncUI'
+import { YearView } from './components/YearView'
 
 interface EditorTarget {
   hmId: string
@@ -35,6 +36,7 @@ export function App() {
   const [legendFor, setLegendFor] = useState<{ hmId: string; anchor: DOMRect } | null>(null)
   const [jumpFor, setJumpFor] = useState<{ hmId: string; anchor: DOMRect } | null>(null)
   const [scrollTargets, setScrollTargets] = useState<Record<string, { date: string; token: number }>>({})
+  const [yearView, setYearView] = useState(false) // 항상 기본 보기로 시작 (D-12)
   const [page, setPage] = useState(0)
   const boardRef = useRef<HTMLDivElement>(null)
 
@@ -52,17 +54,32 @@ export function App() {
 
   const toggleLabel = () => setWeekLabel(data.settings.weekLabel === 'range' ? 'number' : 'range')
 
+  // 연간 보기 칸 탭 → 기본 보기의 해당 히트맵·해당 주로 점프 (D-12)
+  function jumpFromYear(hmId: string, date: string) {
+    setYearView(false)
+    setScrollTargets((s) => ({ ...s, [hmId]: { date, token: (s[hmId]?.token ?? 0) + 1 } }))
+    setTimeout(() => {
+      const idx = heatmaps.findIndex((h) => h.id === hmId)
+      boardRef.current?.children[idx]?.scrollIntoView({ inline: 'center', block: 'nearest' })
+    }, 60)
+  }
+
   return (
     <>
       <header class="header">
         <h1>Life Heatmap</h1>
         <span class="spacer" />
         <SyncIndicator />
+        <button class="icon-btn" title={yearView ? '기본 보기' : '연간 보기'} onClick={() => setYearView((v) => !v)}>
+          {yearView ? '▤' : '▦'}
+        </button>
         <button class="icon-btn" title="추가" onClick={() => setCreateOpen(true)}>＋</button>
         <button class="icon-btn" title="설정" onClick={() => setSettingsOpen(true)}>⚙</button>
       </header>
 
-      {heatmaps.length === 0 ? (
+      {yearView && heatmaps.length > 0 ? (
+        <YearView heatmaps={heatmaps} today={today} onJump={jumpFromYear} />
+      ) : heatmaps.length === 0 ? (
         <div class="empty">
           <p>아직 히트맵이 없어요.</p>
           <button class="btn" onClick={() => setCreateOpen(true)}>＋ 히트맵 만들기</button>

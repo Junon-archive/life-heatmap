@@ -108,6 +108,29 @@ export function quarterlyStats(hm: Heatmap, today: string): PeriodStats[] {
   return [...byQ.values()]
 }
 
+/** 임의 날짜 범위 집계 — 연간 보기 한 줄 요약용 (specs/03 §9). 분모는 범위 중 오늘까지 지난 일수 */
+export function rangeStats(hm: Heatmap, start: string, end: string, today: string): PeriodStats {
+  const s = blank(`${start}~${end}`)
+  const effEnd = end < today ? end : today
+  s.elapsedDays = start > effEnd ? 0 : diffDays(start, effEnd) + 1
+  for (const [d, e] of Object.entries(hm.entries)) {
+    if (d < start || d > end || d > today || entryIsEmpty(e)) continue
+    if (e.fill) s.filled++
+    if (e.mark?.kind === 'symbol') s.symbols[e.mark.symbol]++
+    if (e.mark?.kind === 'number') {
+      s.numberSum += e.mark.value
+      s.numberDays++
+    }
+    if (e.border) s.borders++
+    if (e.fail) s.fails++
+    if (e.value != null) {
+      s.valueSum += e.value
+      s.valueDays++
+    }
+  }
+  return s
+}
+
 /** 이 히트맵에서 실제 사용된 표기 종류 (요약줄·통계 열 구성용) */
 export function usedFeatures(hm: Heatmap): { fill: boolean; circle: boolean; x: boolean; star: boolean; number: boolean; border: boolean; value: boolean } {
   const f = { fill: false, circle: false, x: false, star: false, number: false, border: false, value: false }
