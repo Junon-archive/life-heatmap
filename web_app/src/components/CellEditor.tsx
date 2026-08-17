@@ -120,6 +120,8 @@ export function CellEditor({ hm, date, anchor, onClose }: Props) {
           {d.getMonth() + 1}월 {d.getDate()}일 ({DAY_NAMES[d.getDay()]})
           {streakDays != null && streakDays > 0 && <span class="sub">{streakDays}일차</span>}
           {isFail && <span class="sub" style={{ color: 'var(--danger)' }}>실패 체크됨</span>}
+          <span class="spacer" style={{ flex: 1 }} />
+          <button class="icon-btn" title="닫기" onClick={onClose}>✕</button>
         </div>
 
         <div class={`ed-row ${isFail ? 'disabled' : ''}`}>

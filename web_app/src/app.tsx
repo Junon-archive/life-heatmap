@@ -70,9 +70,10 @@ export function App() {
         <h1>Life Heatmap</h1>
         <span class="spacer" />
         <SyncIndicator />
-        <button class="icon-btn" title={yearView ? '기본 보기' : '연간 보기'} onClick={() => setYearView((v) => !v)}>
-          {yearView ? '▤' : '▦'}
-        </button>
+        <span class="seg view-seg">
+          <button class={!yearView ? 'on' : ''} onClick={() => setYearView(false)}>기본</button>
+          <button class={yearView ? 'on' : ''} onClick={() => setYearView(true)}>연간</button>
+        </span>
         <button class="icon-btn" title="추가" onClick={() => setCreateOpen(true)}>＋</button>
         <button class="icon-btn" title="설정" onClick={() => setSettingsOpen(true)}>⚙</button>
       </header>

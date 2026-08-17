@@ -40,6 +40,7 @@ input { font: inherit; }
 }
 .sync-ind:active { background: var(--line-soft); }
 .sync-dot { width: 7px; height: 7px; border-radius: 50%; }
+.view-seg button { padding: 4px 9px; font-size: 12px; }
 
 /* ---------- 보드: 모바일 스와이프 / 데스크톱 그리드 ---------- */
 .board {
@@ -186,6 +187,7 @@ input { font: inherit; }
   }
 }
 .ed-date { font-size: 13px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.ed-date .icon-btn { width: 26px; height: 26px; font-size: 13px; margin: -4px 0; }
 .ed-date .sub { color: var(--text-faint); font-weight: 500; }
 .ed-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
 .ed-label { font-size: 12px; color: var(--text-dim); width: 44px; flex: none; }
