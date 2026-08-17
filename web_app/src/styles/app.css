@@ -196,6 +196,7 @@ input { font: inherit; }
 .seg { display: inline-flex; background: var(--line-soft); border-radius: var(--radius-ui); padding: 2px; gap: 2px; }
 .seg button {
   padding: 5px 10px; border-radius: 6px; font-size: 12.5px; font-weight: 600; color: var(--text-dim);
+  white-space: nowrap;
 }
 .seg button.on { background: var(--card); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
 
@@ -301,27 +302,19 @@ input { font: inherit; }
 .yv-head .name { font-size: 15px; font-weight: 700; }
 .yv-grid {
   display: grid;
-  grid-auto-rows: auto;
-  gap: 2px;
-  align-items: stretch;
+  align-items: stretch; /* 트랙·간격은 YearGrid가 측정해 인라인 px로 지정 (D-16) */
 }
+.yv-grid .yv-c { display: block; min-width: 0; min-height: 0; }
 /* width:0 + overflow visible — 라벨 텍스트가 트랙 폭에 영향 주지 않고 칸 위로 흘러넘침 (D-14, Safari 안전장치) */
 .yv-month { font-size: 9px; color: var(--text-faint); white-space: nowrap; line-height: 1.2; width: 0; min-width: 0; overflow: visible; }
 .yv-day { font-size: 8px; color: var(--text-faint); align-self: center; padding-right: 3px; }
 .yv-summary { font-size: 12px; color: var(--text-dim); margin-top: 8px; }
 
-/* 축소 칸 오버라이드 — compact 렌더(숫자→점)와 병행, 스케일만 조정 (D-14) */
-.yv-grid .cell { display: block; width: 100%; height: auto; border-radius: 1px; min-width: 0; }
+/* 축소 칸 오버라이드 — 높이는 행 트랙(px)이 결정, aspect-ratio 미사용 (D-16, Safari 이력) */
+.yv-grid .cell { display: block; width: 100%; height: 100%; aspect-ratio: auto; border-radius: 1px; min-width: 0; }
 .yv-grid .cell.past-empty::after { display: none; }
 .yv-grid .cell.today { outline: 1px solid var(--accent); outline-offset: 0; }
 .yv-grid .cell .milestone-fx { inset: 0; border-radius: 2px; }
-.mark-dot {
-  position: absolute; left: 50%; top: 50%;
-  width: 42%; height: 42%; max-width: 5px; max-height: 5px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%; pointer-events: none;
-}
-@media (max-width: 767px) { .yv-grid { gap: 1px; } }
 
 /* 빈 상태 */
 .empty {

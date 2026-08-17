@@ -70,17 +70,14 @@ export function Cell({ date, visual: v, onClick, compact }: Props) {
       aria-label={date}
       onClick={(e) => onClick(date, e.currentTarget as HTMLElement)}
     >
-      {v.fill && <span class="layer" style={{ background: fillBackground(v.fill.style, v.fill.color, v.fill.alpha) }} />}
-      {v.mark && (compact && v.mark.kind === 'number' ? (
-        <span class="mark-dot" style={{ background: markColor }} />
-      ) : (
-        <MarkGlyph mark={v.mark} color={markColor} />
-      ))}
-      {!v.mark && v.valueText != null && (compact ? (
-        !v.fill && <span class="mark-dot" style={{ background: markColor }} />
-      ) : (
+      {/* compact(연간 보기): 채우기는 단색 통일, 숫자·수치는 표기하지 않음 (D-16) */}
+      {v.fill && (
+        <span class="layer" style={{ background: fillBackground(compact ? 'solid' : v.fill.style, v.fill.color, v.fill.alpha) }} />
+      )}
+      {v.mark && !(compact && v.mark.kind === 'number') && <MarkGlyph mark={v.mark} color={markColor} />}
+      {!v.mark && v.valueText != null && !compact && (
         <span class="mark val" style={{ color: markColor }}>{v.valueText}</span>
-      ))}
+      )}
       {v.border && <span class="border-hl" style={{ boxShadow: `inset 0 0 0 ${compact ? 1 : 2}px ${markColor}` }} />}
       {v.milestone && v.milestoneColor && (
         <span

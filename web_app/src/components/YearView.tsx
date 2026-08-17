@@ -1,6 +1,6 @@
 // 연간 보기 — GitHub contribution graph 스타일 1년 한눈 보기 (specs/03 §9, R-30, D-12)
 // 편집 없음. 칸 탭 → 기본 보기의 해당 주로 점프.
-import { useState } from 'preact/hooks'
+import { useEffect, useRef, useState } from 'preact/hooks'
 import type { Heatmap } from '../lib/types'
 import { addDays, weekStart, diffDays, parseDate } from '../lib/dates'
 import { cellVisual } from '../lib/render'
@@ -52,8 +52,29 @@ function yearSummary(hm: Heatmap, from: string, to: string, today: string): stri
   return parts.length ? parts.join(' · ') : '기록 없음'
 }
 
+const LABEL_W = 26 // 요일 라벨 열(px)
+
 function YearGrid({ hm, range, today, onJump }: { hm: Heatmap; range: Range; today: string; onJump: (date: string) => void }) {
   const { weeks, from, to } = weeksOf(range, today)
+  const cols = weeks.length
+
+  // 칸 크기를 px로 확정 (D-16) — 1fr+aspect-ratio는 iOS Safari에서 열 붕괴/행 눌림 이력
+  const gridRef = useRef<HTMLDivElement>(null)
+  const [dims, setDims] = useState({ px: 6, gap: 1 })
+  useEffect(() => {
+    const el = gridRef.current
+    if (!el) return
+    const calc = () => {
+      const w = el.clientWidth
+      const gap = w >= 700 ? 2 : 1
+      const px = Math.max(3, Math.floor((w - LABEL_W - gap * cols) / cols))
+      setDims((d) => (d.px === px && d.gap === gap ? d : { px, gap }))
+    }
+    calc()
+    const ro = new ResizeObserver(calc)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [cols])
 
   // 월 라벨: 달이 바뀌는 열 위에 표시 (첫 열 포함)
   const monthLabels: { col: number; label: string }[] = []
@@ -68,8 +89,11 @@ function YearGrid({ hm, range, today, onJump }: { hm: Heatmap; range: Range; tod
   // 첫 라벨이 다음 라벨과 너무 붙으면(부분 주) 생략
   if (monthLabels.length >= 2 && monthLabels[1].col - monthLabels[0].col < 3) monthLabels.shift()
 
-  // minmax(0,1fr) 필수 — 1fr만 쓰면 월 라벨의 min-content가 열 폭을 강제해 좁은 화면에서 그리드가 붕괴 (D-14)
-  const gridStyle = { gridTemplateColumns: `auto repeat(${weeks.length}, minmax(0, 1fr))` }
+  const gridStyle = {
+    gridTemplateColumns: `${LABEL_W}px repeat(${cols}, ${dims.px}px)`,
+    gridTemplateRows: `auto repeat(7, ${dims.px}px)`,
+    gap: `${dims.gap}px`,
+  }
 
   return (
     <div class="yv-block">
@@ -77,7 +101,7 @@ function YearGrid({ hm, range, today, onJump }: { hm: Heatmap; range: Range; tod
         <span class="name">{hm.name}</span>
         {hm.type === 'streak' && <span class="streak-badge">🔥 {currentStreak(hm, today)}일</span>}
       </div>
-      <div class="yv-grid" style={gridStyle}>
+      <div class="yv-grid" style={gridStyle} ref={gridRef}>
         {monthLabels.map((m) => (
           <span key={m.col} class="yv-month" style={{ gridColumn: m.col + 2, gridRow: 1 }}>{m.label}</span>
         ))}
@@ -88,10 +112,10 @@ function YearGrid({ hm, range, today, onJump }: { hm: Heatmap; range: Range; tod
           Array.from({ length: 7 }, (_, d) => {
             const date = addDays(ws, d)
             if (date < from || date > to) {
-              return <span key={date} style={{ gridColumn: w + 2, gridRow: d + 2 }} />
+              return <span key={date} class="yv-c" style={{ gridColumn: w + 2, gridRow: d + 2 }} />
             }
             return (
-              <span key={date} style={{ gridColumn: w + 2, gridRow: d + 2 }}>
+              <span key={date} class="yv-c" style={{ gridColumn: w + 2, gridRow: d + 2 }}>
                 <Cell date={date} visual={cellVisual(hm, date, today)} onClick={() => onJump(date)} compact />
               </span>
             )
