@@ -139,11 +139,24 @@ export function YearView({ heatmaps, today, onJump }: Props) {
 
   return (
     <div class="yv-wrap">
-      <div class="yv-ranges seg">
-        <button class={range === 'recent' ? 'on' : ''} onClick={() => setRange('recent')}>최근 1년</button>
-        {years.map((y) => (
-          <button key={y} class={range === y ? 'on' : ''} onClick={() => setRange(y)}>{y}</button>
-        ))}
+      {/* 연도가 누적되어도 늘어지지 않도록 버튼 + 드롭다운 (D-17) */}
+      <div class="yv-ranges">
+        <span class="seg">
+          <button class={range === 'recent' ? 'on' : ''} onClick={() => setRange('recent')}>최근 1년</button>
+        </span>
+        <select
+          class={`yv-year-sel ${range !== 'recent' ? 'on' : ''}`}
+          value={range === 'recent' ? '' : String(range)}
+          onChange={(e) => {
+            const v = (e.currentTarget as HTMLSelectElement).value
+            if (v) setRange(Number(v))
+          }}
+        >
+          <option value="" disabled hidden>연도 선택</option>
+          {years.map((y) => (
+            <option key={y} value={String(y)}>{y}년</option>
+          ))}
+        </select>
       </div>
       {heatmaps.map((hm) => (
         <YearGrid key={hm.id} hm={hm} range={range} today={today} onJump={(date) => onJump(hm.id, date)} />
