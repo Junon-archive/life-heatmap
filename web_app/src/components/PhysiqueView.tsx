@@ -25,7 +25,7 @@ function dateShort(date: string, today: string): string {
 
 // ---- 추세 차트 (자체 SVG, 정규화 축) ----
 const CHART_COLORS: Partial<Record<PhysiqueGoalKey, string>> = {
-  weight: 'var(--c-blue)', waist: 'var(--c-green)', ratio: 'var(--c-violet)',
+  weight: 'var(--c-blue)', waist: 'var(--c-green)', muscle: 'var(--c-amber)', ratio: 'var(--c-violet)',
 }
 
 function ChartSVG({ ph, keys, today }: { ph: PhysiqueData; keys: PhysiqueGoalKey[]; today: string }) {
@@ -72,9 +72,11 @@ function ChartSVG({ ph, keys, today }: { ph: PhysiqueData; keys: PhysiqueGoalKey
             {pts.map((p) => (
               <circle key={p.date} cx={x(p.date)} cy={yOf(key, pts, p.value)} r={3.2} style={{ fill: 'var(--card)', stroke: color, strokeWidth: 2 }} />
             ))}
-            <text x={Math.min(x(last.date) + 6, 700)} y={yOf(key, pts, last.value) - 6} class="pv-axis" style={{ fill: color }}>
-              {METRIC_INFO[key].label} {fmt(last.value, METRIC_INFO[key].decimals)}
-            </text>
+            {single && (
+              <text x={Math.min(x(last.date) + 6, 700)} y={yOf(key, pts, last.value) - 6} class="pv-axis" style={{ fill: color }}>
+                {fmt(last.value, METRIC_INFO[key].decimals)}
+              </text>
+            )}
           </g>
         )
       })}
@@ -84,9 +86,27 @@ function ChartSVG({ ph, keys, today }: { ph: PhysiqueData; keys: PhysiqueGoalKey
   )
 }
 
+/** 다중 라인일 때 겹치는 라인 라벨 대신 쓰는 범례 */
+function ChartLegend({ ph, keys }: { ph: PhysiqueData; keys: PhysiqueGoalKey[] }) {
+  const items = keys
+    .map((k) => ({ key: k, last: lastPoint(ph, k), color: CHART_COLORS[k] ?? 'var(--c-blue)' }))
+    .filter((i) => i.last)
+  if (items.length < 2) return null
+  return (
+    <div class="pv-legend">
+      {items.map((i) => (
+        <span key={i.key}>
+          <i style={{ background: i.color }} />
+          {METRIC_INFO[i.key].label} {fmt(i.last!.value, METRIC_INFO[i.key].decimals)}
+        </span>
+      ))}
+    </div>
+  )
+}
+
 // ---- 메인 뷰 ----
 export function PhysiqueView({ ph, today, onEdit }: Props) {
-  const [tab, setTab] = useState<'all' | 'weight' | 'waist' | 'ratio'>('all')
+  const [tab, setTab] = useState<'all' | 'weight' | 'waist' | 'muscle' | 'ratio'>('all')
 
   const hasData = latestEntryDate(ph) != null
   if (!hasData) {
@@ -185,13 +205,14 @@ export function PhysiqueView({ ph, today, onEdit }: Props) {
           <div class="pv-panel-head">
             <div><h3>추세</h3><div class="sub">시작(위) → 목표(아래) 정규화 · 점선은 전 기간 회귀 연장</div></div>
             <span class="seg">
-              {([['all', '종합'], ['weight', '체중'], ['waist', '허리'], ['ratio', '비율']] as const).map(([id, label]) => (
+              {([['all', '종합'], ['weight', '체중'], ['waist', '허리'], ['muscle', '골격근'], ['ratio', '비율']] as const).map(([id, label]) => (
                 <button key={id} class={tab === id ? 'on' : ''} onClick={() => setTab(id)}>{label}</button>
               ))}
             </span>
           </div>
           <div class="pv-chart">
-            <ChartSVG ph={ph} keys={tab === 'all' ? ['weight', 'ratio'] : [tab]} today={today} />
+            <ChartSVG ph={ph} keys={tab === 'all' ? ['weight', 'waist', 'muscle', 'ratio'] : [tab]} today={today} />
+            <ChartLegend ph={ph} keys={tab === 'all' ? ['weight', 'waist', 'muscle', 'ratio'] : [tab]} />
           </div>
         </article>
         <article class="pv-panel">

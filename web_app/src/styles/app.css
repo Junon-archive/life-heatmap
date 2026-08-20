@@ -376,6 +376,8 @@ input { font: inherit; }
 .pv-chart svg{width:100%;height:230px;overflow:visible;display:block}
 .pv-axis{fill:var(--text-faint);font-size:9px}
 .pv-goal-line{stroke:var(--text-faint);stroke-width:1;stroke-dasharray:4 4;opacity:.6}
+.pv-legend{display:flex;flex-wrap:wrap;gap:12px;font-size:10.5px;color:var(--text-dim);margin-top:6px;font-variant-numeric:tabular-nums}
+.pv-legend i{display:inline-block;width:14px;height:4px;border-radius:2px;vertical-align:middle;margin-right:5px}
 .pv-proj-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:10px 0;border-bottom:1px solid var(--line-soft);font-size:12.5px}
 .pv-proj-row:last-child{border-bottom:0}
 .pv-proj-row .name{color:var(--text-dim)}
