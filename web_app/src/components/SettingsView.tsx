@@ -3,7 +3,8 @@ import { useState } from 'preact/hooks'
 import type { ComponentChildren } from 'preact'
 import type { Heatmap, HeatmapType, LegendItem, CondRule, PaletteKey, FillStyle } from '../lib/types'
 import { PALETTE, PALETTE_KEYS, DEFAULT_STREAK, DEFAULT_CONDITIONAL } from '../lib/types'
-import { getData, updateHeatmapMeta, deleteHeatmap, setWeekLabel, update } from '../lib/store'
+import { getData, updateHeatmapMeta, deleteHeatmap, setWeekLabel, update, updatePhysiqueGoals } from '../lib/store'
+import { GOAL_KEYS, METRIC_INFO } from '../lib/physique'
 import { exportJSON, importJSON } from '../lib/backup'
 import { SyncSection } from './SyncUI'
 import { useAppData } from '../lib/useData'
@@ -326,6 +327,39 @@ export function SettingsView({ onClose, extraSections }: { onClose: () => void; 
                   <button class={getData().settings.weekLabel === 'range' ? 'on' : ''} onClick={() => setWeekLabel('range')}>날짜 범위</button>
                   <button class={getData().settings.weekLabel === 'number' ? 'on' : ''} onClick={() => setWeekLabel('number')}>주 번호</button>
                 </span>
+              </div>
+            </section>
+            <section>
+              <h3>신체 목표 (신체 뷰)</h3>
+              <div class="pv-fields">
+                <div class="pv-field full">
+                  <label>목표 날짜</label>
+                  <input
+                    class="text-input"
+                    type="date"
+                    value={data.physique.targetDate}
+                    onInput={(e) => {
+                      const v = (e.currentTarget as HTMLInputElement).value
+                      if (v) updatePhysiqueGoals({ targetDate: v })
+                    }}
+                  />
+                </div>
+                {GOAL_KEYS.map((k) => (
+                  <div class="pv-field" key={k}>
+                    <label>{METRIC_INFO[k].label}{METRIC_INFO[k].unit ? ` (${METRIC_INFO[k].unit})` : ''}</label>
+                    <input
+                      class="text-input"
+                      type="number"
+                      step="0.1"
+                      inputMode="decimal"
+                      value={data.physique.goals[k]}
+                      onInput={(e) => {
+                        const n = Number((e.currentTarget as HTMLInputElement).value)
+                        if (Number.isFinite(n)) updatePhysiqueGoals({ goals: { [k]: n } })
+                      }}
+                    />
+                  </div>
+                ))}
               </div>
             </section>
             <SyncSection />

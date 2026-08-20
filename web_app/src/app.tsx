@@ -11,6 +11,8 @@ import { LegendPopover } from './components/LegendPopover'
 import { YearJump } from './components/YearJump'
 import { SyncIndicator } from './components/SyncUI'
 import { YearView } from './components/YearView'
+import { PhysiqueView } from './components/PhysiqueView'
+import { PhysiqueEntryModal } from './components/PhysiqueEntryModal'
 
 interface EditorTarget {
   hmId: string
@@ -36,7 +38,8 @@ export function App() {
   const [legendFor, setLegendFor] = useState<{ hmId: string; anchor: DOMRect } | null>(null)
   const [jumpFor, setJumpFor] = useState<{ hmId: string; anchor: DOMRect } | null>(null)
   const [scrollTargets, setScrollTargets] = useState<Record<string, { date: string; token: number }>>({})
-  const [yearView, setYearView] = useState(false) // 항상 기본 보기로 시작 (D-12)
+  const [view, setView] = useState<'main' | 'year' | 'physique'>('main') // 항상 기본 보기로 시작 (D-12)
+  const [physiqueModal, setPhysiqueModal] = useState<{ date: string | null } | null>(null)
   const [page, setPage] = useState(0)
   const boardRef = useRef<HTMLDivElement>(null)
 
@@ -56,7 +59,7 @@ export function App() {
 
   // 연간 보기 칸 탭 → 기본 보기의 해당 히트맵·해당 주로 점프 (D-12)
   function jumpFromYear(hmId: string, date: string) {
-    setYearView(false)
+    setView('main')
     setScrollTargets((s) => ({ ...s, [hmId]: { date, token: (s[hmId]?.token ?? 0) + 1 } }))
     setTimeout(() => {
       const idx = heatmaps.findIndex((h) => h.id === hmId)
@@ -71,14 +74,23 @@ export function App() {
         <span class="spacer" />
         <SyncIndicator />
         <span class="seg view-seg">
-          <button class={!yearView ? 'on' : ''} onClick={() => setYearView(false)}>기본</button>
-          <button class={yearView ? 'on' : ''} onClick={() => setYearView(true)}>연간</button>
+          <button class={view === 'main' ? 'on' : ''} onClick={() => setView('main')}>기본</button>
+          <button class={view === 'year' ? 'on' : ''} onClick={() => setView('year')}>연간</button>
+          <button class={view === 'physique' ? 'on' : ''} onClick={() => setView('physique')}>신체</button>
         </span>
-        <button class="icon-btn" title="추가" onClick={() => setCreateOpen(true)}>＋</button>
+        <button
+          class="icon-btn"
+          title={view === 'physique' ? '측정 추가' : '추가'}
+          onClick={() => (view === 'physique' ? setPhysiqueModal({ date: null }) : setCreateOpen(true))}
+        >
+          ＋
+        </button>
         <button class="icon-btn" title="설정" onClick={() => setSettingsOpen(true)}>⚙</button>
       </header>
 
-      {yearView && heatmaps.length > 0 ? (
+      {view === 'physique' ? (
+        <PhysiqueView ph={data.physique} today={today} onEdit={(date) => setPhysiqueModal({ date })} />
+      ) : view === 'year' && heatmaps.length > 0 ? (
         <YearView heatmaps={heatmaps} today={today} onJump={jumpFromYear} />
       ) : heatmaps.length === 0 ? (
         <div class="empty">
@@ -126,6 +138,9 @@ export function App() {
         <CellEditor hm={editorHm} date={editor.date} anchor={editor.anchor} onClose={() => setEditor(null)} />
       )}
       {createOpen && <CreateFlow onClose={() => setCreateOpen(false)} onCreated={() => {}} />}
+      {physiqueModal && (
+        <PhysiqueEntryModal ph={data.physique} date={physiqueModal.date} today={today} onClose={() => setPhysiqueModal(null)} />
+      )}
       {settingsOpen && <SettingsView onClose={() => setSettingsOpen(false)} />}
       {statsFor && heatmaps.find((h) => h.id === statsFor) && (
         <StatsView hm={heatmaps.find((h) => h.id === statsFor)!} today={today} onClose={() => setStatsFor(null)} />
