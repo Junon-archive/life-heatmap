@@ -1,6 +1,6 @@
 // 단일 store — localStorage 영속화 + 구독 + 마이그레이션 (specs/02 §1, §7)
-import type { AppData, Entry, Heatmap, HeatmapType } from './types'
-import { emptyData, DEFAULT_STREAK, DEFAULT_CONDITIONAL } from './types'
+import type { AppData, Entry, Heatmap, HeatmapType, PhysiqueMetric, PhysiqueGoalKey } from './types'
+import { emptyData, DEFAULT_STREAK, DEFAULT_CONDITIONAL, defaultPhysique } from './types'
 import { todayStr } from './dates'
 
 const LS_KEY = 'lh:data'
@@ -35,6 +35,12 @@ export function migrate(d: unknown): AppData {
     hm.createdAt ??= todayStr()
     if (hm.config.streak) hm.config.streak.baseStyle ??= 'solid' // D-11 이전 데이터 보강
   }
+  // 신체 대시보드(specs/05) 이전 데이터 보강
+  obj.physique ??= defaultPhysique(Date.now())
+  obj.physique.entries ??= {}
+  obj.physique.goals ??= defaultPhysique(Date.now()).goals
+  obj.physique.targetDate ??= defaultPhysique(Date.now()).targetDate
+  obj.physique.u ??= 0
   return obj
 }
 
@@ -145,6 +151,34 @@ export function setWeekLabel(mode: 'range' | 'number') {
   update((d) => {
     d.settings.weekLabel = mode
     d.settings.u = Date.now()
+  })
+}
+
+// ---- 신체 대시보드 (specs/05 §3) ----
+
+/** 해당 날짜의 측정을 통째로 저장(하루 1기록 — 덮어쓰기). null/undefined 지표는 저장하지 않음 */
+export function savePhysiqueEntry(date: string, values: Partial<Record<PhysiqueMetric, number | null>>) {
+  update((d) => {
+    const entry: Record<string, number> & { u: number } = { u: Date.now() } as never
+    for (const [k, v] of Object.entries(values)) {
+      if (v != null && Number.isFinite(v)) (entry as Record<string, number>)[k] = v
+    }
+    d.physique.entries[date] = entry
+  })
+}
+
+/** 측정 삭제 — 동기화 전파를 위해 u만 남긴 "지움" 엔트리 유지 */
+export function deletePhysiqueEntry(date: string) {
+  update((d) => {
+    d.physique.entries[date] = { u: Date.now() }
+  })
+}
+
+export function updatePhysiqueGoals(patch: { goals?: Partial<Record<PhysiqueGoalKey, number>>; targetDate?: string }) {
+  update((d) => {
+    if (patch.goals) Object.assign(d.physique.goals, patch.goals)
+    if (patch.targetDate) d.physique.targetDate = patch.targetDate
+    d.physique.u = Date.now()
   })
 }
 

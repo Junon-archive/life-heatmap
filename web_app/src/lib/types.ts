@@ -74,11 +74,34 @@ export interface Settings {
   u: number
 }
 
+// ---- 신체 대시보드 (specs/05) ----
+export type PhysiqueMetric = 'weight' | 'bodyFat' | 'shoulder' | 'muscle' | 'waist' | 'arm'
+export type PhysiqueGoalKey = PhysiqueMetric | 'ratio'
+
+export type PhysiqueEntry = { [K in PhysiqueMetric]?: number | null } & { u: number }
+
+export interface PhysiqueData {
+  u: number // goals/targetDate 수정 시각 (LWW)
+  targetDate: string // YYYY-MM-DD
+  goals: Record<PhysiqueGoalKey, number>
+  entries: Record<string, PhysiqueEntry> // key: YYYY-MM-DD, 하루 1기록
+}
+
+export function defaultPhysique(now: number): PhysiqueData {
+  return {
+    u: now,
+    targetDate: '2026-11-30',
+    goals: { weight: 68, bodyFat: 12, shoulder: 51, muscle: 37, waist: 75, arm: 37.5, ratio: 1.6 },
+    entries: {},
+  }
+}
+
 export interface AppData {
   version: 1
   settings: Settings
   heatmaps: Heatmap[]
   tombstones: Record<string, number> // 삭제된 히트맵 id → 삭제 시각
+  physique: PhysiqueData
 }
 
 export const PALETTE: Record<PaletteKey, string> = {
@@ -115,6 +138,7 @@ export function emptyData(now: number): AppData {
     settings: { weekLabel: 'range', u: now },
     heatmaps: [],
     tombstones: {},
+    physique: defaultPhysique(now),
   }
 }
 

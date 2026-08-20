@@ -1,7 +1,8 @@
 // LWW 병합 — specs/02 §5.3
 // 단위: settings(u) / 히트맵 메타(id별 u) / 엔트리(id+날짜별 u) / tombstones(합집합)
 // tombstone 시각이 히트맵 u보다 크면 삭제 유지
-import type { AppData, Heatmap, Entry } from './types'
+import type { AppData, Heatmap, Entry, PhysiqueData, PhysiqueEntry } from './types'
+import { defaultPhysique } from './types'
 
 function clone<T>(v: T): T {
   return JSON.parse(JSON.stringify(v))
@@ -22,6 +23,20 @@ function mergeHeatmap(a: Heatmap, b: Heatmap): Heatmap {
     ...clone(meta),
     entries: mergeEntries(a.entries, b.entries),
   }
+}
+
+/** physique 병합 — goals/targetDate는 u, 엔트리는 날짜별 u 기준 LWW (specs/05 §3) */
+function mergePhysique(a: PhysiqueData | undefined, b: PhysiqueData | undefined): PhysiqueData {
+  if (!a && !b) return defaultPhysique(0)
+  if (!a) return clone(b!)
+  if (!b) return clone(a)
+  const meta = (b.u ?? 0) > (a.u ?? 0) ? b : a
+  const entries: Record<string, PhysiqueEntry> = clone(a.entries ?? {})
+  for (const [date, eb] of Object.entries(b.entries ?? {})) {
+    const ea = entries[date]
+    if (!ea || (eb.u ?? 0) > (ea.u ?? 0)) entries[date] = clone(eb)
+  }
+  return { u: meta.u ?? 0, targetDate: meta.targetDate, goals: clone(meta.goals), entries }
 }
 
 export function mergeData(a: AppData, b: AppData): AppData {
@@ -49,7 +64,7 @@ export function mergeData(a: AppData, b: AppData): AppData {
   }
   heatmaps.sort((x, y) => x.order - y.order)
 
-  return { version: 1, settings, heatmaps, tombstones }
+  return { version: 1, settings, heatmaps, tombstones, physique: mergePhysique(a.physique, b.physique) }
 }
 
 function lastTouched(hm: Heatmap): number {

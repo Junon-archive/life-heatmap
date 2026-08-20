@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import type { AppData, Heatmap } from './types'
+import { defaultPhysique } from './types'
 import { mergeData } from './merge'
 
 function base(u = 1): AppData {
-  return { version: 1, settings: { weekLabel: 'range', u }, heatmaps: [], tombstones: {} }
+  return { version: 1, settings: { weekLabel: 'range', u }, heatmaps: [], tombstones: {}, physique: defaultPhysique(0) }
 }
 
 function hm(id: string, u: number, extra: Partial<Heatmap> = {}): Heatmap {
@@ -96,6 +97,38 @@ describe('mergeData (LWW)', () => {
     mergeData(a, b)
     expect(JSON.stringify(a)).toBe(aJson)
     expect(JSON.stringify(b)).toBe(bJson)
+  })
+
+  it('physique: 목표는 u가 큰 쪽, 엔트리는 날짜별 LWW', () => {
+    const a = base()
+    const b = base()
+    a.physique.u = 10
+    a.physique.goals.weight = 70
+    a.physique.entries = {
+      '2026-08-19': { weight: 75.3, u: 100 },
+      '2026-08-12': { weight: 76.0, u: 50 },
+    }
+    b.physique.u = 20
+    b.physique.goals.weight = 65
+    b.physique.entries = {
+      '2026-08-19': { weight: 75.0, u: 60 }, // a가 최신
+      '2026-08-12': { u: 70 }, // b의 "지움"이 최신
+      '2026-08-20': { waist: 91, u: 30 }, // b에만 존재
+    }
+    const m = mergeData(a, b).physique
+    expect(m.goals.weight).toBe(65) // b.u가 큼
+    expect(m.entries['2026-08-19'].weight).toBe(75.3)
+    expect(m.entries['2026-08-12'].weight).toBeUndefined()
+    expect(m.entries['2026-08-20'].waist).toBe(91)
+  })
+
+  it('한쪽에만 physique가 있으면(구버전 백업) 있는 쪽 사용', () => {
+    const a = base()
+    a.physique.entries = { '2026-08-19': { weight: 75.3, u: 1 } }
+    const b = base()
+    ;(b as Partial<AppData>).physique = undefined
+    const m = mergeData(a, b as AppData)
+    expect(m.physique.entries['2026-08-19'].weight).toBe(75.3)
   })
 
   it('order 순 정렬 유지', () => {
