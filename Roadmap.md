@@ -1,7 +1,7 @@
 # Roadmap — Life Heatmap
 
 ## 현재 상태
-**v1 배포 완료 · 운영 중.** GitHub `Junon-archive/life-heatmap`(private) → Cloudflare Pages 자동 배포, KV(`LH_KV`) 동기화 확인 완료(2026-08-16). 명세는 `specs/00~04` 확정본 기준.
+**v2(신체 대시보드 포함) 배포 완료 · 운영 중.** GitHub `Junon-archive/life-heatmap`(private) → Cloudflare Pages 자동 배포, KV(`LH_KV`) 동기화. 명세는 `specs/00~05` 확정본 기준.
 
 ## v1 체크리스트
 - [x] 1단계: 스캐폴드(Vite+Preact+TS) · 데이터 모델/store/localStorage · dates/streak/merge/stats 유틸 · vitest 21개 통과
