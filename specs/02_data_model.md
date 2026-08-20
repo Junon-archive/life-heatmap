@@ -26,7 +26,8 @@
   ],
   "tombstones": {                // 삭제된 히트맵 { id: 삭제시각 } — 동기화 시 부활 방지
     "hm_x9y8z7": 1765000000000
-  }
+  },
+  "physique": { /* 신체 대시보드 데이터 — 스키마·병합 규칙은 05_physique_dashboard.md §3 */ }
 }
 ```
 
@@ -115,6 +116,7 @@
 2. 히트맵 메타(name/type/order/archived/config): 히트맵 `id`별로 `u`가 큰 쪽. 한쪽에만 있는 id는 추가하되, `tombstones`에 있고 그 삭제 시각이 해당 히트맵 `u`보다 크면 삭제 유지.
 3. `entries`: (히트맵 id, 날짜) 단위로 `u`가 큰 쪽.
 4. `tombstones`: 합집합.
+5. `physique`: goals·targetDate는 `physique.u`, 측정 엔트리는 날짜별 `u` 기준 LWW (05 문서 §3).
 
 단일 사용자이므로 충돌은 드물다. LWW로 충분하며 CRDT는 과설계다.
 

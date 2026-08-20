@@ -16,6 +16,7 @@
 - `specs/02_data_model.md` — 스키마·streak 계산·동기화 프로토콜
 - `specs/03_ui_spec.md` — 화면·칸 렌더링·편집기·팔레트·통계
 - `specs/04_architecture.md` — 스택·디렉터리 구조·배포 체크리스트·테스트 기준
+- `specs/05_physique_dashboard.md` — 신체 대시보드(세 번째 뷰) 지표·스키마·화면·계산 규칙
 - `Roadmap.md` — 현재 구현 상황·변경 로그·다음 작업
 
 ## 스택 요약
