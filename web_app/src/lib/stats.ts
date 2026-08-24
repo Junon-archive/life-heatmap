@@ -131,6 +131,11 @@ export function rangeStats(hm: Heatmap, start: string, end: string, today: strin
   return s
 }
 
+/** 숫자 마크 합계 표시용 반올림 — 소수 입력(D-22)의 부동소수점 오차 방지 */
+export function round1(x: number): number {
+  return Math.round(x * 10) / 10
+}
+
 /** 이 히트맵에서 실제 사용된 표기 종류 (요약줄·통계 열 구성용) */
 export function usedFeatures(hm: Heatmap): { fill: boolean; circle: boolean; x: boolean; star: boolean; number: boolean; border: boolean; value: boolean } {
   const f = { fill: false, circle: false, x: false, star: false, number: false, border: false, value: false }

@@ -19,7 +19,9 @@ export function fillBackground(style: 'hatch' | 'solid', color: PaletteKey, alph
 
 export function MarkGlyph({ mark, color }: { mark: Mark; color: string }) {
   if (mark.kind === 'number') {
-    return <span class="mark num" style={{ color }}>{mark.value}</span>
+    // 소수 포함 3~4글자(예: 7.5, 99.9)는 칸 안에 들어가도록 축소 (D-22)
+    const long = String(mark.value).length > 2
+    return <span class={`mark num${long ? ' long' : ''}`} style={{ color }}>{mark.value}</span>
   }
   const stroke = { stroke: color, 'stroke-width': 2.6, fill: 'none', 'stroke-linecap': 'round' as const }
   return (

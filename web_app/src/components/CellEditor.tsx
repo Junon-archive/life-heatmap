@@ -1,5 +1,5 @@
 // 칸 편집기 — 바텀시트(모바일)/팝오버(데스크톱), 탭 즉시 저장 (specs/03 §5)
-import { useEffect, useMemo } from 'preact/hooks'
+import { useEffect, useMemo, useState } from 'preact/hooks'
 import type { Heatmap, PaletteKey, FillStyle, SymbolKind } from '../lib/types'
 import { PALETTE, PALETTE_KEYS, matchCondRule } from '../lib/types'
 import { patchEntry, clearEntry } from '../lib/store'
@@ -88,15 +88,34 @@ export function CellEditor({ hm, date, anchor, onClose }: Props) {
   const markKind = e?.mark?.kind === 'number' ? 'number' : e?.mark?.kind === 'symbol' ? e.mark.symbol : null
   const numValue = e?.mark?.kind === 'number' ? e.mark.value : null
   const setSymbol = (s: SymbolKind) => patch({ mark: { kind: 'symbol', symbol: s } })
+
+  // 숫자 키패드 — 0~99.9, 소수 한 자리 (D-22). "7." 같은 중간 상태를 위해 문자열로 편집
+  const [numText, setNumText] = useState<string | null>(null)
+  useEffect(() => setNumText(null), [hm.id, date])
+  const numShown = numText ?? (numValue != null ? String(numValue) : '')
+  const commitNum = (t: string) => {
+    setNumText(t)
+    if (t === '' || t === '.') patch({ mark: null })
+    else patch({ mark: { kind: 'number', value: Math.round(parseFloat(t) * 10) / 10 } })
+  }
   const pressDigit = (dgt: number) => {
-    const cur = numValue ?? 0
-    let next = cur * 10 + dgt
-    if (next > 99) next = dgt
-    patch({ mark: { kind: 'number', value: next } })
+    const t = numShown
+    if (t.includes('.')) {
+      if (t.split('.')[1].length >= 1) return // 소수 한 자리까지만
+      commitNum(t + dgt)
+    } else if (t.replace('-', '').length >= 2) {
+      commitNum(String(dgt)) // 정수부 2자리 초과 → 새로 입력 (기존 동작 유지)
+    } else {
+      commitNum(t === '0' ? String(dgt) : t + dgt)
+    }
+  }
+  const pressDot = () => {
+    const t = numShown
+    if (t.includes('.')) return
+    commitNum(t === '' ? '0.' : t + '.')
   }
   const backspace = () => {
-    if (numValue == null || numValue < 10) patch({ mark: null })
-    else patch({ mark: { kind: 'number', value: Math.floor(numValue / 10) } })
+    commitNum(numShown.slice(0, -1))
   }
 
   // 실패 체크는 채우기와만 배타 — 마크·테두리는 유지 (specs D-10)
@@ -151,11 +170,12 @@ export function CellEditor({ hm, date, anchor, onClose }: Props) {
         </div>
         {markKind === 'number' && !markSuppressed && (
           <div class="ed-row">
-            <span class="ed-label num-preview">{numValue}</span>
+            <span class="ed-label num-preview">{numShown}</span>
             <span class="keypad">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((n) => (
                 <button key={n} onClick={() => pressDigit(n)}>{n}</button>
               ))}
+              <button onClick={pressDot}>.</button>
               <button onClick={backspace}>⌫</button>
             </span>
           </div>

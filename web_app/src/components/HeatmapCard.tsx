@@ -1,7 +1,7 @@
 // 히트맵 카드 — 헤더(이름·연속일·범례) + 그리드 + 하단 요약줄 (specs/03 §2, §7)
 import type { Heatmap, WeekLabelMode } from '../lib/types'
 import { currentStreak, bestStreak } from '../lib/streak'
-import { monthlyStats, usedFeatures } from '../lib/stats'
+import { monthlyStats, usedFeatures, round1 } from '../lib/stats'
 import { CellGrid } from './CellGrid'
 
 interface Props {
@@ -28,7 +28,7 @@ export function summaryLine(hm: Heatmap, today: string): string {
   if (used.circle) parts.push(`◯ ${m.symbols.circle}`)
   if (used.x) parts.push(`✕ ${m.symbols.x}`)
   if (used.star) parts.push(`★ ${m.symbols.star}`)
-  if (used.number) parts.push(`№ ${m.numberSum}`)
+  if (used.number) parts.push(`№ ${round1(m.numberSum)}`)
   if (used.value && m.valueDays > 0) parts.push(`평균 ${(m.valueSum / m.valueDays).toFixed(1)}`)
   return parts.length ? `이번 달: ${parts.join(' · ')}` : '이번 달: 기록 없음'
 }

@@ -5,7 +5,7 @@ import type { Heatmap } from '../lib/types'
 import { addDays, weekStart, diffDays, parseDate } from '../lib/dates'
 import { cellVisual } from '../lib/render'
 import { currentStreak, bestStreak, startDate } from '../lib/streak'
-import { rangeStats, usedFeatures } from '../lib/stats'
+import { rangeStats, usedFeatures, round1 } from '../lib/stats'
 import { Cell } from './Cell'
 
 const MONTHS_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -47,7 +47,7 @@ function yearSummary(hm: Heatmap, from: string, to: string, today: string): stri
   if (used.circle) parts.push(`◯ ${s.symbols.circle}`)
   if (used.x) parts.push(`✕ ${s.symbols.x}`)
   if (used.star) parts.push(`★ ${s.symbols.star}`)
-  if (used.number) parts.push(`№ ${s.numberSum}`)
+  if (used.number) parts.push(`№ ${round1(s.numberSum)}`)
   if (used.value && s.valueDays > 0) parts.push(`평균 ${(s.valueSum / s.valueDays).toFixed(1)}`)
   return parts.length ? parts.join(' · ') : '기록 없음'
 }

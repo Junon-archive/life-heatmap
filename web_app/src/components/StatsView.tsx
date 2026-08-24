@@ -2,7 +2,7 @@
 import { useState } from 'preact/hooks'
 import type { Heatmap } from '../lib/types'
 import { PALETTE } from '../lib/types'
-import { monthlyStats, quarterlyStats, usedFeatures, type PeriodStats } from '../lib/stats'
+import { monthlyStats, quarterlyStats, usedFeatures, round1, type PeriodStats } from '../lib/stats'
 import { currentStreak, bestStreak, milestoneHistory } from '../lib/streak'
 import { LegendSample } from './SettingsView'
 
@@ -73,7 +73,7 @@ export function StatsView({ hm, today, onClose }: { hm: Heatmap; today: string; 
                     {used.circle && <td>{r.symbols.circle}</td>}
                     {used.x && <td>{r.symbols.x}</td>}
                     {used.star && <td>{r.symbols.star}</td>}
-                    {used.number && <td>{r.numberSum}</td>}
+                    {used.number && <td>{round1(r.numberSum)}</td>}
                     {used.value && <td>{r.valueDays ? (r.valueSum / r.valueDays).toFixed(1) : '–'}</td>}
                     {isStreak && <td>{r.fails}</td>}
                   </tr>

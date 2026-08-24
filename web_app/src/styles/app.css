@@ -144,6 +144,7 @@ input { font: inherit; }
   font-variant-numeric: tabular-nums;
 }
 .cell .mark.num { font-size: clamp(13px, 4.2vw, 17px); }
+.cell .mark.num.long { font-size: clamp(9px, 3vw, 12px); letter-spacing: -0.03em; }
 .cell .mark svg { width: 62%; height: 62%; display: block; }
 .cell .mark.val { font-size: clamp(10px, 3.2vw, 13px); font-weight: 600; }
 .cell .border-hl { position: absolute; inset: 0; border-radius: var(--radius-cell); pointer-events: none; }
