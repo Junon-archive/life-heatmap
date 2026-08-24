@@ -1,8 +1,10 @@
 // 히트맵 카드 — 헤더(이름·연속일·범례) + 그리드 + 하단 요약줄 (specs/03 §2, §7)
+import { useState } from 'preact/hooks'
 import type { Heatmap, WeekLabelMode } from '../lib/types'
 import { currentStreak, bestStreak } from '../lib/streak'
 import { monthlyStats, usedFeatures, round1 } from '../lib/stats'
 import { CellGrid } from './CellGrid'
+import { CondTrendPopup } from './CondTrendPopup'
 
 interface Props {
   hm: Heatmap
@@ -36,6 +38,9 @@ export function summaryLine(hm: Heatmap, today: string): string {
 export function HeatmapCard(props: Props) {
   const { hm, today, labelMode } = props
   const hasLegend = (hm.config.legend?.length ?? 0) > 0
+  const isCond = hm.type === 'conditional'
+  const [condAvg, setCondAvg] = useState(false) // 「주 평균 보기」 — 비영속 (D-24)
+  const [trendOpen, setTrendOpen] = useState(false)
 
   return (
     <div class="hm-card">
@@ -43,6 +48,19 @@ export function HeatmapCard(props: Props) {
         <span class="name">{hm.name}</span>
         {hm.type === 'streak' && <span class="streak-badge">🔥 {currentStreak(hm, today)}일</span>}
         <span class="spacer" />
+        {isCond && (
+          <span class="seg cond-seg" title="토요일 칸에 주 평균 표시">
+            <button class={!condAvg ? 'on' : ''} onClick={() => setCondAvg(false)}>일반</button>
+            <button class={condAvg ? 'on' : ''} onClick={() => setCondAvg(true)}>평균</button>
+          </span>
+        )}
+        {isCond && (
+          <button class="icon-btn" title="추세" onClick={() => setTrendOpen(true)}>
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+              <polyline points="3 17 9 11 13 14 21 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+        )}
         {hasLegend && (
           <button class="icon-btn" title="범례" onClick={(e) => props.onOpenLegend(hm.id, e.currentTarget as HTMLElement)}>
             ⓘ
@@ -59,7 +77,9 @@ export function HeatmapCard(props: Props) {
         onToggleLabel={props.onToggleLabel}
         onCellClick={(date, el) => props.onCellClick(hm.id, date, el)}
         scrollTarget={props.scrollTarget}
+        condAvg={condAvg}
       />
+      {trendOpen && <CondTrendPopup hm={hm} today={today} onClose={() => setTrendOpen(false)} />}
       <button class="hm-summary" onClick={() => props.onOpenStats(hm.id)} title="통계 보기">
         <span class="item">{summaryLine(hm, today)}</span>
       </button>

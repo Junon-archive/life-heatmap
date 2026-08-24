@@ -2,8 +2,10 @@
 // 위 = 과거, 아래 = 최신. 초기 오늘 행이 하단에 오도록 스크롤, 위로 스크롤 시 과거 로드
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks'
 import type { Heatmap, WeekLabelMode } from '../lib/types'
+import { matchCondRule } from '../lib/types'
 import { addDays, weekStart, weekLabel, parseDate } from '../lib/dates'
 import { cellVisual } from '../lib/render'
+import { round1 } from '../lib/stats'
 import { Cell } from './Cell'
 
 const INITIAL_WEEKS = 12
@@ -18,9 +20,11 @@ interface Props {
   onCellClick: (date: string, el: HTMLElement) => void
   /** 연도 점프 등 외부에서 특정 주로 스크롤하고 싶을 때 */
   scrollTarget?: { date: string; token: number } | null
+  /** 조건부형 「주 평균 보기」(D-24): 토요일 칸의 표시 숫자만 주 평균으로 대체 */
+  condAvg?: boolean
 }
 
-export function CellGrid({ hm, today, labelMode, onToggleLabel, onCellClick, scrollTarget }: Props) {
+export function CellGrid({ hm, today, labelMode, onToggleLabel, onCellClick, scrollTarget, condAvg }: Props) {
   const [weeks, setWeeks] = useState(INITIAL_WEEKS)
   const scrollRef = useRef<HTMLDivElement>(null)
   const pendingPrepend = useRef<number | null>(null) // 과거 로드 전 scrollHeight
@@ -90,15 +94,36 @@ export function CellGrid({ hm, today, labelMode, onToggleLabel, onCellClick, scr
       </div>
       <div class="hm-scroll" ref={scrollRef} onScroll={onScroll}>
         <button class="load-past" onClick={loadPast}>이전 주 보기</button>
-        {weekStarts.map((ws) => (
-          <div class="hm-week hm-cols" key={ws} data-week={ws}>
-            <span class="wk-label">{weekLabel(ws, labelMode, currentYear)}</span>
-            {Array.from({ length: 7 }, (_, i) => {
-              const date = addDays(ws, i)
-              return <Cell key={date} date={date} visual={cellVisual(hm, date, today)} onClick={onCellClick} />
-            })}
-          </div>
-        ))}
+        {weekStarts.map((ws) => {
+          // 주 평균 (D-24): 값이 입력된 날들의 평균. 없으면 표시 안 함
+          let avg: number | null = null
+          if (condAvg && hm.type === 'conditional') {
+            const vals: number[] = []
+            for (let i = 0; i < 7; i++) {
+              const v = hm.entries[addDays(ws, i)]?.value
+              if (v != null) vals.push(v)
+            }
+            if (vals.length) avg = round1(vals.reduce((a, b) => a + b, 0) / vals.length)
+          }
+          return (
+            <div class="hm-week hm-cols" key={ws} data-week={ws}>
+              <span class="wk-label">{weekLabel(ws, labelMode, currentYear)}</span>
+              {Array.from({ length: 7 }, (_, i) => {
+                const date = addDays(ws, i)
+                const v = cellVisual(hm, date, today)
+                if (avg != null && i === 6) {
+                  // 토요일 칸: 표시 숫자만 평균으로 대체 + glow로 구분. 채우기·마크·편집은 토요일 그대로
+                  v.valueText = String(avg)
+                  v.mark = null
+                  v.milestone = true
+                  v.milestoneColor = matchCondRule(hm.config.conditional?.rules ?? [], avg)?.color ?? 'slate'
+                  v.pastEmpty = false
+                }
+                return <Cell key={date} date={date} visual={v} onClick={onCellClick} />
+              })}
+            </div>
+          )
+        })}
       </div>
     </>
   )
