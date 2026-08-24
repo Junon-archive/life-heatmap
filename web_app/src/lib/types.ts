@@ -43,6 +43,7 @@ export interface CondRule {
   max: number | null // null = 상한 없음
   style: FillStyle
   color: PaletteKey
+  level?: number // 강도 1~5 (LEVEL_ALPHA 단계, D-23). 생략 = 4 (기존 룩)
 }
 
 export interface ConditionalConfig {

@@ -8,7 +8,8 @@ import { GOAL_KEYS, METRIC_INFO } from '../lib/physique'
 import { exportJSON, importJSON } from '../lib/backup'
 import { SyncSection } from './SyncUI'
 import { useAppData } from '../lib/useData'
-import { fillBackground, MarkGlyph } from './Cell'
+import { fillBackground, MarkGlyph, rgba } from './Cell'
+import { LEVEL_ALPHA } from '../lib/streak'
 
 function Swatches({ current, onPick }: { current: PaletteKey; onPick: (c: PaletteKey) => void }) {
   return (
@@ -153,15 +154,30 @@ function RuleEditor({ hm }: { hm: Heatmap }) {
             <span class="spacer" style={{ flex: 1 }} />
             <button class="btn danger small" onClick={() => setRules(cc.rules.filter((_, j) => j !== i))}>삭제</button>
           </div>
-          <div class="ed-row" style={{ marginBottom: 0 }}>
+          <div class="ed-row" style={{ marginBottom: '6px' }}>
             <span class="seg">
               <button class={r.style === 'hatch' ? 'on' : ''} onClick={() => patchRule(i, { style: 'hatch' })}>빗금</button>
               <button class={r.style === 'solid' ? 'on' : ''} onClick={() => patchRule(i, { style: 'solid' })}>단색</button>
             </span>
             <Swatches current={r.color} onPick={(k) => patchRule(i, { color: k })} />
           </div>
+          <div class="ed-row" style={{ marginBottom: 0 }}>
+            <span class="val-unit">강도</span>
+            <span class="swatches">
+              {[1, 2, 3, 4, 5].map((lv) => (
+                <button
+                  key={lv}
+                  class={`sw ${(r.level ?? 4) === lv ? 'on' : ''}`}
+                  style={{ background: rgba(r.color, LEVEL_ALPHA[lv]), borderRadius: '6px' }}
+                  title={`강도 ${lv}`}
+                  onClick={() => patchRule(i, { level: lv })}
+                />
+              ))}
+            </span>
+          </div>
         </div>
       ))}
+      <p class="hint">같은 색으로 강도만 올린 규칙들을 나열하면, 값이 클수록 점점 진해지는 그라데이션이 돼요.</p>
       <button class="btn ghost small" onClick={() => setRules([...cc.rules, { min: null, max: null, style: 'solid', color: 'slate' }])}>
         ＋ 규칙 추가
       </button>

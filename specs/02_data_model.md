@@ -55,9 +55,10 @@
     "unit": "시간",              // 표시용 단위 문자열 (선택)
     "showValue": true,           // 칸에 수치 표시 여부
     "rules": [                   // 위에서부터 첫 매칭 적용. min ≤ value < max
+      // level: 강도 1~5 (streak의 LEVEL_ALPHA와 동일 단계, D-23). 생략 시 4(기존 룩)
       { "min": null, "max": 6,    "style": "solid", "color": "rose" },
-      { "min": 6,    "max": 9,    "style": "solid", "color": "blue" },
-      { "min": 9,    "max": null, "style": "solid", "color": "violet" }
+      { "min": 6,    "max": 9,    "style": "solid", "color": "blue", "level": 3 },
+      { "min": 9,    "max": null, "style": "solid", "color": "blue", "level": 5 }
     ]
   }
 }

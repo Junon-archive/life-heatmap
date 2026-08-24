@@ -65,11 +65,16 @@ export function cellVisual(hm: Heatmap, date: string, today: string): CellVisual
     }
   }
 
-  // conditional 유형: 수치 → 규칙 채색 (specs/03 §3.2)
+  // conditional 유형: 수치 → 규칙 채색 (specs/03 §3.2). level 지정 시 streak와 같은 5단계 강도 (D-23)
   const cc = hm.type === 'conditional' ? hm.config.conditional : undefined
   if (cc && e && e.value != null && !isFail) {
     const rule = matchCondRule(cc.rules, e.value)
-    if (rule) v.fill = { style: rule.style, color: rule.color, alpha: rule.style === 'hatch' ? HATCH_ALPHA : SOLID_ALPHA }
+    if (rule) {
+      const alpha = rule.level != null
+        ? LEVEL_ALPHA[Math.max(1, Math.min(5, Math.round(rule.level)))]
+        : rule.style === 'hatch' ? HATCH_ALPHA : SOLID_ALPHA
+      v.fill = { style: rule.style, color: rule.color, alpha }
+    }
     if (cc.showValue) {
       v.valueText = String(e.value)
       v.mark = null // 수치 표시 중엔 별도 마크 비활성 (specs/03 §3.2)

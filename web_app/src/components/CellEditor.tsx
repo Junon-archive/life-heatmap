@@ -4,7 +4,7 @@ import type { Heatmap, PaletteKey, FillStyle, SymbolKind } from '../lib/types'
 import { PALETTE, PALETTE_KEYS, matchCondRule } from '../lib/types'
 import { patchEntry, clearEntry } from '../lib/store'
 import { parseDate } from '../lib/dates'
-import { streakOn } from '../lib/streak'
+import { streakOn, LEVEL_ALPHA } from '../lib/streak'
 import { rgba } from './Cell'
 
 const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토']
@@ -215,7 +215,9 @@ export function CellEditor({ hm, date, anchor, onClose }: Props) {
               onInput={(ev) => setValue((ev.currentTarget as HTMLInputElement).value)}
             />
             {cc.unit && <span class="val-unit">{cc.unit}</span>}
-            {matchedRule && <span class="rule-chip" style={{ background: rgba(matchedRule.color, 0.75) }} />}
+            {matchedRule && (
+              <span class="rule-chip" style={{ background: rgba(matchedRule.color, matchedRule.level != null ? LEVEL_ALPHA[Math.max(1, Math.min(5, matchedRule.level))] : 0.75) }} />
+            )}
           </div>
         )}
 
