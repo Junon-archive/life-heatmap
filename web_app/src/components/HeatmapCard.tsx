@@ -3,6 +3,7 @@ import { useState } from 'preact/hooks'
 import type { Heatmap, WeekLabelMode } from '../lib/types'
 import { currentStreak, bestStreak } from '../lib/streak'
 import { monthlyStats, usedFeatures, round1 } from '../lib/stats'
+import { updateHeatmapMeta } from '../lib/store'
 import { CellGrid } from './CellGrid'
 import { CondTrendPopup } from './CondTrendPopup'
 
@@ -39,7 +40,9 @@ export function HeatmapCard(props: Props) {
   const { hm, today, labelMode } = props
   const hasLegend = (hm.config.legend?.length ?? 0) > 0
   const isCond = hm.type === 'conditional'
-  const [condAvg, setCondAvg] = useState(false) // 「주 평균 보기」 — 비영속 (D-24)
+  // 「주 평균 보기」 — config에 영속·동기화 (D-24)
+  const condAvg = !!hm.config.condAvg
+  const setCondAvg = (on: boolean) => updateHeatmapMeta(hm.id, { config: { ...hm.config, condAvg: on } })
   const [trendOpen, setTrendOpen] = useState(false)
 
   return (

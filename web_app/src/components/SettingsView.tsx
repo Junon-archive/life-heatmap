@@ -43,6 +43,39 @@ function patchConfig(hm: Heatmap, fn: (cfg: Heatmap['config']) => void) {
   updateHeatmapMeta(hm.id, { config: cfg })
 }
 
+/** 숫자 입력 — 입력 중 문자열을 로컬로 유지해 "7." 재포맷·커서 점프를 방지 */
+function NumInput({ value, onCommit, allowEmpty, cls, style, placeholder }: {
+  value: number | null | undefined
+  onCommit: (n: number | null) => void
+  allowEmpty?: boolean
+  cls?: string
+  style?: Record<string, string>
+  placeholder?: string
+}) {
+  const [t, setT] = useState(value != null ? String(value) : '')
+  return (
+    <input
+      class={cls ?? 'text-input'}
+      style={style}
+      type="number"
+      step="0.1"
+      inputMode="decimal"
+      placeholder={placeholder}
+      value={t}
+      onInput={(e) => {
+        const raw = (e.currentTarget as HTMLInputElement).value
+        setT(raw)
+        if (raw.trim() === '') {
+          if (allowEmpty) onCommit(null)
+          return
+        }
+        const n = Number(raw)
+        if (Number.isFinite(n)) onCommit(n)
+      }}
+    />
+  )
+}
+
 function Row({ label, children }: { label: string; children: ComponentChildren }) {
   return (
     <div class="ed-row">
@@ -133,23 +166,9 @@ function RuleEditor({ hm }: { hm: Heatmap }) {
       {cc.rules.map((r, i) => (
         <div class="row-card" key={i}>
           <div class="ed-row" style={{ marginBottom: '6px' }}>
-            <input
-              class="val-input" style={{ width: '64px' }} type="number" step="0.1" placeholder="이상"
-              value={r.min ?? ''}
-              onInput={(e) => {
-                const v = (e.currentTarget as HTMLInputElement).value
-                patchRule(i, { min: v === '' ? null : Number(v) })
-              }}
-            />
+            <NumInput cls="val-input" style={{ width: '64px' }} placeholder="이상" allowEmpty value={r.min} onCommit={(n) => patchRule(i, { min: n })} />
             <span class="val-unit">이상 ~</span>
-            <input
-              class="val-input" style={{ width: '64px' }} type="number" step="0.1" placeholder="미만"
-              value={r.max ?? ''}
-              onInput={(e) => {
-                const v = (e.currentTarget as HTMLInputElement).value
-                patchRule(i, { max: v === '' ? null : Number(v) })
-              }}
-            />
+            <NumInput cls="val-input" style={{ width: '64px' }} placeholder="미만" allowEmpty value={r.max} onCommit={(n) => patchRule(i, { max: n })} />
             <span class="val-unit">미만</span>
             <span class="spacer" style={{ flex: 1 }} />
             <button class="btn danger small" onClick={() => setRules(cc.rules.filter((_, j) => j !== i))}>삭제</button>
@@ -363,17 +382,7 @@ export function SettingsView({ onClose, extraSections }: { onClose: () => void; 
                 {GOAL_KEYS.map((k) => (
                   <div class="pv-field" key={k}>
                     <label>{METRIC_INFO[k].label}{METRIC_INFO[k].unit ? ` (${METRIC_INFO[k].unit})` : ''}</label>
-                    <input
-                      class="text-input"
-                      type="number"
-                      step="0.1"
-                      inputMode="decimal"
-                      value={data.physique.goals[k]}
-                      onInput={(e) => {
-                        const n = Number((e.currentTarget as HTMLInputElement).value)
-                        if (Number.isFinite(n)) updatePhysiqueGoals({ goals: { [k]: n } })
-                      }}
-                    />
+                    <NumInput value={data.physique.goals[k]} onCommit={(n) => { if (n != null) updatePhysiqueGoals({ goals: { [k]: n } }) }} />
                   </div>
                 ))}
               </div>

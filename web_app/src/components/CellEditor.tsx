@@ -91,7 +91,12 @@ export function CellEditor({ hm, date, anchor, onClose }: Props) {
 
   // 숫자 키패드 — 0~99.9, 소수 한 자리 (D-22). "7." 같은 중간 상태를 위해 문자열로 편집
   const [numText, setNumText] = useState<string | null>(null)
-  useEffect(() => setNumText(null), [hm.id, date])
+  // 조건부 수치 입력도 동일 — 파싱값을 input에 되돌리면 "7."의 .이 지워지고 커서가 튐
+  const [valText, setValText] = useState<string | null>(null)
+  useEffect(() => {
+    setNumText(null)
+    setValText(null)
+  }, [hm.id, date])
   const numShown = numText ?? (numValue != null ? String(numValue) : '')
   const commitNum = (t: string) => {
     setNumText(t)
@@ -211,8 +216,12 @@ export function CellEditor({ hm, date, anchor, onClose }: Props) {
               type="number"
               step="0.1"
               inputMode="decimal"
-              value={e?.value ?? ''}
-              onInput={(ev) => setValue((ev.currentTarget as HTMLInputElement).value)}
+              value={valText ?? (e?.value ?? '')}
+              onInput={(ev) => {
+                const raw = (ev.currentTarget as HTMLInputElement).value
+                setValText(raw)
+                setValue(raw)
+              }}
             />
             {cc.unit && <span class="val-unit">{cc.unit}</span>}
             {matchedRule && (

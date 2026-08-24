@@ -51,6 +51,7 @@
   },
 
   // type === "conditional" 일 때만
+  "condAvg": true,               // 「주 평균 보기」 토글 상태 (D-24, 영속·동기화)
   "conditional": {
     "unit": "시간",              // 표시용 단위 문자열 (선택)
     "showValue": true,           // 칸에 수치 표시 여부

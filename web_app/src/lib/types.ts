@@ -56,6 +56,7 @@ export interface HeatmapConfig {
   legend?: LegendItem[]
   streak?: StreakConfig
   conditional?: ConditionalConfig
+  condAvg?: boolean // 조건부형 「주 평균 보기」 상태 (D-24, 영속·동기화)
 }
 
 export interface Heatmap {
